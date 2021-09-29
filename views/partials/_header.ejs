@@ -9,10 +9,20 @@
         <a class="nav-item nav-link" href="/urls">My URLs</a>
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
       </div>
-      <form class="form-inline" method="POST" action="/login">
-      <input class="input-control" type="text" name="username" placeholder="username" id="">
-      <button type="submit" class="btn btn-primary">Login</button>
+      <div class="navbar nav mx-auto">
+      <% if (username) { %>
+        <form method="POST" action="/logout">
+          <div class="form-group form-inline text-primary navbar-right">
+            <label>Logged in as: <%= username %></label>
+            <button type="submit" style="background-color:transparent; border-color:darkslategray; color:darkslategray" class="btn btn-primary">Logout</button>
+          </div>
+        </form>
+      <% } else { %>
+      <form class="form-group form-inline" method="POST" action="/login">
+        <input class="form-control" type="text" name="username" placeholder="username" id="" style="width: 300px;">
+        <button style="background-color: transparent;" type="submit" class="btn btn-primary">Login</button>
       </form>
+      <% } %>
     </div>
   </nav>
 </header>
