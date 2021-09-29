@@ -1,14 +1,12 @@
 const express = require("express");
+var cookieParser = require('cookie-parser')
 const app = express();
+app.use(cookieParser());
 const PORT = 8080; //default port 8080
 
 const generateRandomString = function() {
   let randomString = "";
-  for (let i = 0; i < 6; i++) {
-    const randomCharCode = Math.floor(Math.random() * 26 + 97);
-    const randomChar = String.fromCharCode(randomCharCode);
-    randomString += randomChar;
-  }
+  randomString = Math.random().toString(36).substr(2,6);
   return randomString;
 };
 
@@ -24,7 +22,7 @@ app.use(bodyParser.urlencoded({extended: true}));
 
 
 app.get("/", (req, res) => {
-  res.send("Hello!");
+  res.send(`Hello From TinyApp`);
 });
 
 app.get("/urls.json", (req, res) => {
@@ -32,7 +30,7 @@ app.get("/urls.json", (req, res) => {
 });
 
 app.get("/hello", (req, res) => {
-  res.send("<html><body>Hello <b>World</b></body></html>\n");
+  res.send(`Hello From TinyApp`);
 });
 
 app.get("/urls", (req, res) => {
@@ -76,8 +74,11 @@ app.post("/urls/:id", (req, res) => {
 });
 
 
+app.post("/urls.login", (req, res) => {
 
 
+  res.redirect("/urls");
+});
 
 
 
