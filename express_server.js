@@ -122,11 +122,11 @@ app.post("/login", (req, res) => {
   const password = req.body.password;
 
 
-  if (!duplicateEmail(email)) {
+  if (!duplicateEmail(email, db)) {
     res.send(403, "This email address is not in use, please first register with this email address");
   } else {
-      const userID = duplicateEmail(email);
-      if (users[userID].password !== password) {
+      const userID = duplicateEmail(email, db);
+      if (db[userID].password !== password) {
       res.send(403, "Password does not match with the associated email address");
       } else {
       res.cookie('user_id', userID);
@@ -143,7 +143,6 @@ app.post("/logout", (req, res) => {
 
 
 app.post("/register", (req, res) => {
-  // const userId = req.body.userId;
   const email = req.body.email;
   const password = req.body.password;
 
@@ -156,7 +155,7 @@ app.post("/register", (req, res) => {
   users[newUserId] = {
     id: newUserId,
     email,
-    password
+    password: bcrypt.hashSync(password, salt)
   };
   res.cookie("user_id", newUserId);
   res.redirect("/urls");

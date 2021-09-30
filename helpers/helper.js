@@ -16,10 +16,10 @@ const createUser = function (email, password, users) {
 };
 
 // duplicateEmail function accepting email argument as parameter, created to maku sure that the user type email address that not in use.
-const duplicateEmail = function(email) {
-  for (let user in users) { //looping through the users object
-    if (users[user].email === email) { // if the email that user type is in the database
-      return users[user].id; // return that email otherwise return false
+const duplicateEmail = function(email ,db) {
+  for (let user in db) { //looping through the users object
+    if (db[user].email === email) { // if the email that user type is in the database
+      return db[user].id; // return that email otherwise return false
     }
   }
   return false;
@@ -45,12 +45,12 @@ const findUserByEmail = function (email) {
 //   return false;
 // };
 
-const usersUrls = function(id) {
+// usersUrls function accepting id and db as parameters, created to return the object of url related to user id
+const usersUrls = function(id ,db) {
   const userUrls = {};
-  for (const shortURL in urlDatabase) {
-    if (urlDatabase[shortURL].userID === id) {
-      userUrls[shortURL] = urlDatabase[shortURL];
-      console.log(userUrls[shortURL])
+  for (const shortURL in db) {
+    if (db[shortURL].userID === id) {
+      userUrls[shortURL] = db[shortURL];
     }
   } 
   return userUrls;
