@@ -6,7 +6,7 @@ const app = express();
 const bcrypt = require('bcryptjs');
 const salt = bcrypt.genSaltSync(10);
 const PORT = 8080; 
-const {duplicateEmail, generateRandomString, usersUrls, findUserByEmail} = require('./helpers/helper')
+const {duplicateEmail, generateRandomString, usersUrls, findUserID, authenticateUser} = require('./helpers/helper')
 
 
 
@@ -125,38 +125,13 @@ app.post("/urls/:id", (req, res) => {
 });
 
 
-app.post("/login", (req, res) => {
-  const email = req.body.email;
-  const password = req.body.password;
-
-
-  if (!duplicateEmail(email, users)) {
-    res.send(403, "This email address is not in use, please first register with this email address");
-  } else {
-      const userID = duplicateEmail(email, users);
-      if (users[userID].password !== password) {
-      res.send(403, "Password does not match with the associated email address");
-      } else {
-      req.session.user_id = newUserId;
-      res.redirect('/urls');
-    }
-  }
-});
-
-
-app.post("/logout", (req, res) => {
-  req.session = null;
-  res.redirect('/urls');
-});
-
-
 app.post("/register", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
 
   if (email === "" || password === "") {
     res.send(400, "Please enter an email and password");
-  }else if (duplicateEmail(email)) {
+  }else if (duplicateEmail(email, users)) {
     res.send(400, "This email is in use");
   } else {
   const newUserId = generateRandomString();
@@ -169,6 +144,34 @@ app.post("/register", (req, res) => {
   res.redirect("/urls");
   };
 });
+
+app.post("/login", (req, res) => {
+  const email = req.body.email;
+  const password = req.body.password;
+
+
+  if (!duplicateEmail(email, users)) {
+    res.send(403, "This email address is not in use, please first register with this email address");
+  } else {
+      const userID = findUserID(email, users);
+      if (!bcrypt.compareSync(password, users[userID].password)) {
+      res.send(403, "Password does not match with the associated email address");
+      res.redirect('/urls')
+      } else {
+      req.session.user_id = userID;
+      res.redirect('/urls');
+    }
+  }
+});
+
+
+app.post("/logout", (req, res) => {
+  req.session = null;
+  res.redirect('/urls');
+});
+
+
+
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}`);
