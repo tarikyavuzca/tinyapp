@@ -26,9 +26,9 @@ const duplicateEmail = function(email ,db) {
 };
 
 // findUserByEmail function accepting email as parameter, created to find the user with the email address in the database
-const findUserByEmail = function (email) {
-  for (let id in users) { // looping through the users object
-    const user = users[id]; // creating user variable and assign it to usersid
+const findUserByEmail = function (email, db) {
+  for (let id in db) { // looping through the users object
+    const user = db[id]; // creating user variable and assign it to usersid
     if(email === user.email) { // if the email address matches with the one in db
       return user; // return that user otherwise return false
     }
