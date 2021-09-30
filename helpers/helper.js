@@ -15,6 +15,8 @@ const createUser = function (email, password, users) {
   return userId;
 };
 
+
+
 // duplicateEmail function accepting email argument as parameter, created to maku sure that the user type email address that not in use.
 const duplicateEmail = function(email ,db) {
   for (let user in db) { //looping through the users object
@@ -26,29 +28,16 @@ const duplicateEmail = function(email ,db) {
 };
 
 // findUserID function accepting email as parameter, created to find the user with the email address in the database
-const findUserID = function (email, db) {
+const findUser = function (email, db) {
   for (let id in db) { // looping through the users object
     const user = db[id]; // creating user variable and assign it to usersid
     if(db[id].email === email) { // if the email address matches with the one in db
-      return db[id].id; // return that user otherwise return false
+      return db[id]; // return that user otherwise return false
     }
   }
   return false;
 };
 
-const authenticateUser = (userDB, email, password) => {
-	if (userDB[email]) {
-		// if (userDB[email].password === password) {
-		if (bcrypt.compareSync(password, userDB[email].password)) {
-			// Email & password match
-			return { user: userDB[email], error: null };
-		}
-		// Bad password
-		return { user: null, error: "bad password" };
-	}
-	// Bad email
-	return { user: null, error: "bad email" };
-};
 
 
 // usersUrls function accepting id and db as parameters, created to return the object of url related to user id
@@ -62,4 +51,5 @@ const usersUrls = function(id ,db) {
   return userUrls;
 };
 
-module.exports = {findUserID, duplicateEmail, createUser, usersUrls, generateRandomString, authenticateUser};
+
+module.exports = {findUser, duplicateEmail, createUser, usersUrls, generateRandomString};
