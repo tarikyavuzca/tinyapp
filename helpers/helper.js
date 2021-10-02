@@ -4,28 +4,7 @@ const generateRandomString = function() {
   return randomString;
 };
 
-const createUser = function (email, password, users) {
-  const userId = generateRandomString();
 
-  users[userId] = {
-    id: userId,
-    email,
-    password
-  };
-  return userId;
-};
-
-
-
-// duplicateEmail function accepting email argument as parameter, created to maku sure that the user type email address that not in use.
-const duplicateEmail = function(email ,db) {
-  for (let user in db) { //looping through the users object
-    if (db[user].email === email) { // if the email that user type is in the database
-      return db[user].id; // return that email otherwise return false
-    }
-  }
-  return false;
-};
 
 // findUserID function accepting email as parameter, created to find the user with the email address in the database
 const findUser = function (email, db) {
@@ -52,4 +31,4 @@ const usersUrls = function(id ,db) {
 };
 
 
-module.exports = {findUser, duplicateEmail, createUser, usersUrls, generateRandomString};
+module.exports = {findUser, usersUrls, generateRandomString};
