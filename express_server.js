@@ -85,29 +85,6 @@ app.get("/u/:shortURL", (req, res) => {
 });
 
 
-app.get("/register", (req, res) => {
-  if (req.session.userID) {
-    res.redirect("/urls");
-    return;
-  };
-  let templateVars = {
-    user: users[req.session.userID],
-  };
-  res.render("urls_registration", templateVars);
-});
-
-app.get("/login", (req, res) => {
-  if (req.session.userID) {
-    res.redirect('/urls');
-    return;
-  }
-  const templateVars = {
-    email: users[req.session.email],
-    user: users[req.session.userID]
-  };
-  res.render('urls_login', templateVars);
-});
-
 app.post("/urls", (req, res) => {
   if (req.session.userID) {
     const shortURL = generateRandomString();
@@ -156,6 +133,21 @@ app.post("/urls/:id", (req, res) => {
   }
 });
 
+// LOGIN ROUTE
+
+app.get("/login", (req, res) => {
+  if (req.session.userID) {
+    res.redirect('/urls');
+    return;
+  }
+  const templateVars = {
+    email: users[req.session.email],
+    user: users[req.session.userID]
+  };
+  res.render('urls_login', templateVars);
+});
+
+
 app.post("/login", (req, res) => {
   
 
@@ -169,25 +161,37 @@ app.post("/login", (req, res) => {
   }
 });
 
+// REGISTER ROUTE
+
+app.get("/register", (req, res) => {
+  if (req.session.userID) {
+    res.redirect("/urls");
+    return;
+  };
+  const templateVars = {
+    user: users[req.session.userID],
+  };
+  res.render("urls_registration", templateVars);
+});
 
 app.post("/register", (req, res) => {
-  const email = req.body.email;
-  const password = req.body.password;
+  if (req.body.email && req.body.password) {
 
-  if (email === "" || password === "") {
-    res.send(400, "Please enter an email and password");
-  }else if (duplicateEmail(email, users)) {
-    res.send(400, "This email is in use");
+    if (!findUser(req.body.email, users)) {
+      const userID = generateRandomString();
+      users[userID] = {
+        userID,
+        email: req.body.email,
+        password: bcrypt.hashSync(req.body.password, salt)
+      };
+      req.session.userID = userID;
+      res.redirect("/urls");
   } else {
-  const newUserId = generateRandomString();
-  users[newUserId] = {
-    id: newUserId,
-    email,
-    password: bcrypt.hashSync(password, salt)
-  };
-  req.session.newUserId = newUserId;
-  res.redirect("/urls");
-  };
+    res.statusCode(400);
+  }
+} else {
+  res.statusCode(400);
+}
 });
 
 
