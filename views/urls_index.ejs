@@ -10,7 +10,9 @@
 </head>
 
 <body>
+
   <%- include('partials/_header') %>
+  
   <main style="margin: 1em;">
     <h3>My URLs</h3>
     <% if (user) { %>
@@ -41,7 +43,7 @@
       </tbody>
     </table>
     <a class="btn btn-primary" href="/urls/new">Create a New Short Link</a>
-    <% } else if (!user){ %>
+    <% } else { %>
       <h5 class="text-muted mt-3">You must login or register to see your URLs.</h5>
     <% } %>
   </main>

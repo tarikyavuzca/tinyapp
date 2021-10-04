@@ -8,13 +8,12 @@ const generateRandomString = function() {
 
 // findUserID function accepting email as parameter, created to find the user with the email address in the database
 const findUser = function (email, db) {
-  for (let id in db) { // looping through the users object
-    const user = db[id]; // creating user variable and assign it to usersid
-    if(db[id].email === email) { // if the email address matches with the one in db
-      return db[id]; // return that user otherwise return false
+  for (let user in db) { // looping through the users object
+    if(db[user].email === email) { // if the email address matches with the one in db
+      return db[user]; // return that user otherwise return false
     }
   }
-  return false;
+  return undefined;
 };
 
 

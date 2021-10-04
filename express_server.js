@@ -25,26 +25,30 @@ const users = {};
 
 app.get("/", (req, res) => {
   if (req.session.userID) {
-  res.render(`/urls`);
+    res.render(`/urls`);
   } else {
     res.redirect('/login');
   }
 });
 
-app.get("/urls", (req, res) => {
+app.get('/urls', (req, res) => {
   const userID = req.session.userID;
   const userUrls = usersUrls(userID, urlDatabase);
   const templateVars = {
     urls: userUrls,
-    user: users[userID]
+    user: users[userID] 
   };
   if (!userID) {
     res.statusCode = 401;
-  }
+  }  
   res.render('urls_index', templateVars);
 });
 
-app.post("/urls", (req, res) => {
+
+
+
+
+app.post('/urls', (req, res) => {
   if (req.session.userID) {
     const shortURL = generateRandomString();
     urlDatabase[shortURL] = {
@@ -52,19 +56,18 @@ app.post("/urls", (req, res) => {
       userID: req.session.userID
     };
     res.redirect(`/urls/${shortURL}`);
-  } 
-  else {
-    res.status(401).render('/urls', {user: users[req.session.userID]});
+  } else {
+    const errorMessage = 'Please log in to proceed!!!';
+    res.status(401).render('urls_er', {user: users[req.session.userID], errorMessage});
   }
-
 });
 
-app.get("/urls/new", (req, res) => {
-  if(req.session.userID) {  
+app.get('/urls/new', (req, res) => {
+  if (req.session.userID) {
     const templateVars = {
-      user: users[req.session.userID] 
+      user: users[req.session.userID]
     };
-      res.render("urls_new", templateVars);
+    res.render('urls_new', templateVars);
   } else {
     res.redirect('/login');
   }
@@ -74,21 +77,25 @@ app.get("/urls/new", (req, res) => {
 app.get("/urls/:shortURL", (req, res) => {
   
   const shortURL = req.params.shortURL;
+  const longURL = urlDatabase[req.params.shortURL].longURL;
   const userID = req.session.userID;
   const userUrls = usersUrls(userID, urlDatabase);
   const templateVars = { 
     urlDatabase,
+    longURL,
     userUrls,
     shortURL,
     user: users[userID] 
   };
 
   if (!urlDatabase[shortURL]) {
-    res.status(404);
+    const errorMessage = 'This short URL does not exist.';
+    res.status(404).render('urls_er', {user: users[userID], errorMessage});
   } else if (!userID || !userUrls[shortURL]) {
-    res.status(401);
+    const errorMessage = 'You are not authorized to see this URL.';
+    res.status(401).render('urls_er', {user: users[userID], errorMessage});
   } else {
-    res.render('urls_show', templateVars);
+    res.render('urls_show', templateVars)
   }
 });
 
@@ -96,30 +103,34 @@ app.post('/urls/:shortURL', (req, res) => {
   const shortURL = req.params.shortURL;
 
   if (req.session.userID  && req.session.userID === urlDatabase[shortURL].userID) {
-    urlDatabase[shortURL].longURL = req.body.updatedURL;
+    urlDatabase[shortURL].longURL = req.body.newURL;
     res.redirect(`/urls`);
   } else {
-    res.status(401).render('/urls', {user: users[req.session.userID]});
+    const errorMessage = 'You are not authorized to do that.';
+    res.status(401).render('urls_er', {user: users[req.session.userID], errorMessage});
   }
 });
 
 app.get("/u/:shortURL", (req, res) => {
   if (urlDatabase[req.params.shortURL]) {
-    res.redirect(urlDatabase[req.params.shortURL].longURL);
+    const longURL = urlDatabase[req.params.shortURL].longURL;
+    res.redirect(longURL);
   } else {
-    res.status(404).render('/urls', {user: users[req.session.userID]});
+    const errorMessage = 'This short URL does not exist.';
+    res.status(404).render('urls_er', {user: users[req.session.userID], errorMessage});
   }
 });
 
 
 app.post("/urls/:shortURL/delete", (req, res) => {
   const shortURL = req.params.shortURL;
-
-  if (req.session.userID  && req.session.userID === urlDatabase[shortURL].userID) {
+  const userID = req.session.userID;
+  if (userID  && userID === urlDatabase[shortURL].userID) {
     delete urlDatabase[shortURL];
     res.redirect('/urls');
   } else {
-    res.status(401).render('/urls', {user: users[req.session.userID]});
+    const errorMessage = 'You are not authorized to do that.';
+    res.status(401).render('urls_er', {user: users[req.session.userID], errorMessage});
   }
 });
 
@@ -139,10 +150,6 @@ app.post("/logout", (req, res) => {
 // LOGIN ROUTE
 
 app.get("/login", (req, res) => {
-  if (req.session.userID) {
-    res.redirect('/urls');
-    return;
-  }
   const templateVars = {
     email: users[req.session.email],
     user: users[req.session.userID]
@@ -160,24 +167,25 @@ app.post("/login", (req, res) => {
     req.session.userID = user.userID;
     res.redirect('/urls');
   } else {
-    res.status(401).render('/urls', {user: users[req.session.userID]});
+    const errorMessage = 'Login credentials are wrong, please check again!!!';
+    res.status(401).render('urls_er', {user: users[req.session.userID], errorMessage});
   }
 });
 
 // REGISTER ROUTE
 
 app.get("/register", (req, res) => {
-  if (req.session.userID) {
-    res.redirect("/urls");
-    return;
-  };
+  // if (!req.session.userID) {
+  //   res.redirect("/urls");
+  //   return;
+  // };
   const templateVars = {
     user: users[req.session.userID],
   };
   res.render("urls_registration", templateVars);
 });
 
-app.post("/register", (req, res) => {
+app.post('/register', (req, res) => {
   if (req.body.email && req.body.password) {
 
     if (!findUser(req.body.email, users)) {
@@ -188,13 +196,16 @@ app.post("/register", (req, res) => {
         password: bcrypt.hashSync(req.body.password, 10)
       };
       req.session.userID = userID;
-      res.redirect("/urls");
+      res.redirect('/urls');
+    } else {
+      const errorMessage = 'This email address is already in use!!!';
+      res.status(400).render('urls_er', {user: users[req.session.userID], errorMessage});
+    }
+
   } else {
-    res.statusCode(400).render('/urls', {user: users[req.session.userID]});
+    const errorMessage = 'Please fill email and password fields!!!';
+    res.status(400).render('urls_er', {user: users[req.session.userID], errorMessage});
   }
-} else {
-  res.statusCode(400).render('/urls', {user: users[req.session.userID]});
-}
 });
 
 
